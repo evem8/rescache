@@ -11,3 +11,8 @@ The rescache tool has the following commands:
 
 Neither the EVE Launcher nor the EVE client should be running while using this tool.
  
+This version adds support for multiple EVE directories, which can be specified using `-d`.  
+For example:
+```
+rescache.exe -d "C:\Program Files (x86)\CCP\EVE-TQ" -d "C:\Program Files (x86)\CCP\EVE-Sisi" verify
+```
