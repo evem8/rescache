@@ -24,13 +24,27 @@ Run with -h (or --help) for help.
 DEFAULT_INDEX_FILENAME = "resfileindex.txt"
 
 
-def _get_index(filename):
+def _get_index(filename, dirs = None):
+    index = []
     try:
         index_path = get_index_path(filename)
         with open(index_path) as f:
-            index = parse_index(f)
+            index += parse_index(f)
     except IOError:
-        print "Couldn't open index file: %s" % index_path
+        if not dirs:
+            print "Couldn't open index file: %s" % index_path
+
+    if dirs:
+        for dir in dirs:
+            try:
+                index_path = get_index_path(os.path.join(dir, filename))
+                with open(index_path) as f:
+                    index += parse_index(f)
+            except IOError:
+                print "Couldn't open index file: %s" % index_path
+        index = list(set(index))
+
+    if len(index) == 0:
         sys.exit(1)
     return index
 
@@ -43,19 +57,19 @@ def _get_res_folder(args):
 
 
 def verify_command(args):
-    verify_cache(_get_index(args.index), _get_res_folder(args))
+    verify_cache(_get_index(args.index, args.dir), _get_res_folder(args))
 
 
 def diff_command(args):
-    diff_cache(_get_index(args.index), _get_res_folder(args))
+    diff_cache(_get_index(args.index, args.dir), _get_res_folder(args))
 
 
 def purge_command(args):
-    purge_cache(_get_index(args.index), _get_res_folder(args))
+    purge_cache(_get_index(args.index, args.dir), _get_res_folder(args))
 
 
 def download_command(args):
-    download_cache(_get_index(args.index), _get_res_folder(args))
+    download_cache(_get_index(args.index, args.dir), _get_res_folder(args))
 
 
 def move_command(args):
@@ -107,6 +121,11 @@ def main():
         "-c", "--cache",
         default=get_shared_cache_folder(),
         help="The location of the shared cache to use - defaults to what the EVE client uses"
+    )
+    parser.add_argument(
+        "-d", "--dir",
+        action='append',
+        help="Additional directories (EVE installs) to read indexes from"
     )
     subparsers = parser.add_subparsers()
 

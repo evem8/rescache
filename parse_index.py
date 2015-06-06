@@ -29,3 +29,7 @@ class IndexEntry(object):
         self.md5_checksum = ""
         self.size_in_bytes = 0
         self.compressed_size = 0
+    def __hash__(self):
+        return hash(self.cached_name)
+    def __eq__(self, other):
+        return self.cached_name == other.cached_name
